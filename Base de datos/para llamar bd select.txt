@@ -1,0 +1,23 @@
+from dataclasses import dataclass
+import psycopg2
+
+
+host = "proyecto4onpremise.cnwcf7swmgs9.us-east-1.rds.amazonaws.com"
+username ="Proyecto4"
+password = "admin123"
+database ="postgres"
+
+conn = psycopg2.connect(
+    host = host,
+    database = database,
+    user = username,
+    password = password
+)
+
+def lambda_handler(event, context):
+    cur = conn.cursor()
+    cur.execute("select * from integrantes")
+    results = cur.fetchall()
+    for row in results:print(row)
+    
+    return results

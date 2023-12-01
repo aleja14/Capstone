@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS public.integrantes
+(
+    nombre character(100) COLLATE pg_catalog."default" NOT NULL,
+    apellidos character(100) COLLATE pg_catalog."default",
+    pais character(100) COLLATE pg_catalog."default",
+    CONSTRAINT integrantes_pkey PRIMARY KEY (nombre)
+);
+
+INSERT INTO public.integrantes(
+	nombre, apellidos, pais)
+	VALUES ('Victor', 'Guzman', 'Rep. Dom'),
+	('Oscar', '', 'Colombia'),('Alejandra', 'Noriega', 'Colombia');
