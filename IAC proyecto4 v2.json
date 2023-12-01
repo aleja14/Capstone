@@ -1,0 +1,1303 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+Description: ""
+Resources:
+    RDSDBInstance:
+        Type: "AWS::RDS::DBInstance"
+        Properties:
+            DBInstanceIdentifier: !Sub "${CognitoUserPoolDomain}backup"
+            AllocatedStorage: 20
+            DBInstanceClass: "db.t3.micro"
+            Engine: "postgres"
+            MasterUsername: "Proyecto4"
+            MasterUserPassword: "REPLACEME"
+            PreferredBackupWindow: "08:43-09:13"
+            BackupRetentionPeriod: 0
+            AvailabilityZone: !GetAtt EC2Subnet.AvailabilityZone
+            PreferredMaintenanceWindow: "fri:04:58-fri:05:28"
+            MultiAZ: false
+            EngineVersion: "15.3"
+            AutoMinorVersionUpgrade: false
+            LicenseModel: "postgresql-license"
+            PubliclyAccessible: false
+            StorageType: "gp2"
+            Port: !GetAtt RDSDBInstance2.Endpoint.Port
+            StorageEncrypted: false
+            CopyTagsToSnapshot: true
+            MonitoringInterval: 0
+            EnableIAMDatabaseAuthentication: false
+            EnablePerformanceInsights: false
+            DeletionProtection: false
+            DBSubnetGroupName: !Sub "default-${EC2VPC2}"
+            VPCSecurityGroups: 
+              - "sg-091c2c81da41dfb24"
+            MaxAllocatedStorage: 1000
+            DBParameterGroupName: "default.postgres15"
+            OptionGroupName: "default:postgres-15"
+            CACertificateIdentifier: "rds-ca-2019"
+
+    RDSDBInstance2:
+        Type: "AWS::RDS::DBInstance"
+        Properties:
+            DBInstanceIdentifier: !Sub "${CognitoUserPoolDomain}onpremise"
+            AllocatedStorage: 20
+            DBInstanceClass: "db.t3.micro"
+            Engine: "postgres"
+            MasterUsername: "Proyecto4"
+            MasterUserPassword: "REPLACEME"
+            PreferredBackupWindow: "03:13-03:43"
+            BackupRetentionPeriod: 0
+            AvailabilityZone: !GetAtt EC2Subnet.AvailabilityZone
+            PreferredMaintenanceWindow: "fri:10:21-fri:10:51"
+            MultiAZ: false
+            EngineVersion: "15.3"
+            AutoMinorVersionUpgrade: false
+            LicenseModel: "postgresql-license"
+            PubliclyAccessible: true
+            StorageType: "gp2"
+            Port: 5432
+            StorageEncrypted: false
+            CopyTagsToSnapshot: true
+            MonitoringInterval: 0
+            EnableIAMDatabaseAuthentication: false
+            EnablePerformanceInsights: false
+            DeletionProtection: false
+            DBSubnetGroupName: "gruposubredes_onpremise"
+            VPCSecurityGroups: 
+              - "sg-0deb97ae193dc15d9"
+            DBParameterGroupName: "default.postgres15"
+            OptionGroupName: "default:postgres-15"
+            CACertificateIdentifier: "rds-ca-2019"
+
+    RDSDBSubnetGroup:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            DBSubnetGroupName: !Sub "default-${EC2VPC2}"
+            SubnetIds: 
+              - !Ref EC2Subnet
+              - !Ref EC2Subnet3
+              - !Ref EC2Subnet5
+
+    RDSDBSubnetGroup2:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: "Created from the RDS Management Console"
+            DBSubnetGroupName: "default-vpc-0ed0ab887d2c0e755"
+            SubnetIds: 
+              - "subnet-0c0f4a600f9a4a215"
+              - "subnet-0d3d634906a5e636f"
+              - "subnet-08ac8aae88bb24ea3"
+              - "subnet-0157ea5b34e037613"
+              - "subnet-009849584280e59bd"
+              - "subnet-078465f58c15b139c"
+
+    RDSDBSubnetGroup3:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: "gruposubred_backupDB"
+            DBSubnetGroupName: "gruposubred_backupdb"
+            SubnetIds: 
+              - "subnet-0ffc3cb17f3c57581"
+              - "subnet-00b800890c4e709a1"
+              - "subnet-0b4c9f3a83f823b6d"
+
+    RDSDBSubnetGroup4:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: "gruposubredes_onpremise"
+            DBSubnetGroupName: "gruposubredes_onpremise"
+            SubnetIds: 
+              - !Ref EC2Subnet2
+              - !Ref EC2Subnet4
+              - !Ref EC2Subnet6
+
+    EC2VPC:
+        Type: "AWS::EC2::VPC"
+        Properties:
+            CidrBlock: "10.0.0.0/20"
+            EnableDnsSupport: true
+            EnableDnsHostnames: true
+            InstanceTenancy: "default"
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "vpc_onpremise"
+
+    EC2VPC2:
+        Type: "AWS::EC2::VPC"
+        Properties:
+            CidrBlock: "198.240.0.0/20"
+            EnableDnsSupport: true
+            EnableDnsHostnames: true
+            InstanceTenancy: "default"
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "VPC_backup"
+
+    EC2Subnet:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet6.AvailabilityZone
+            CidrBlock: "198.240.0.0/28"
+            VpcId: !Ref EC2VPC2
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "subred_Backup1"
+
+    EC2Subnet2:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet5.AvailabilityZone
+            CidrBlock: "10.0.0.16/28"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "subred_onpremise2"
+
+    EC2Subnet3:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !GetAtt EC2Subnet4.AvailabilityZone
+            CidrBlock: "198.240.0.32/28"
+            VpcId: !Ref EC2VPC2
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "subred_Backup3"
+
+    EC2Subnet4:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !Sub "${AWS::Region}c"
+            CidrBlock: "10.0.0.32/28"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "subred_onpremise3"
+
+    EC2Subnet5:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !Sub "${AWS::Region}b"
+            CidrBlock: "198.240.0.16/28"
+            VpcId: !Ref EC2VPC2
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "subred_Backup2"
+
+    EC2Subnet6:
+        Type: "AWS::EC2::Subnet"
+        Properties:
+            AvailabilityZone: !Sub "${AWS::Region}a"
+            CidrBlock: "10.0.0.0/28"
+            VpcId: !Ref EC2VPC
+            MapPublicIpOnLaunch: false
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "subred_onpremise1"
+
+    EC2InternetGateway:
+        Type: "AWS::EC2::InternetGateway"
+        Properties:
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "internet_gateway_on_premise"
+
+    EC2InternetGateway2:
+        Type: "AWS::EC2::InternetGateway"
+        Properties:
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "internet_gateway_backup"
+
+    EC2VPCPeeringConnection:
+        Type: "AWS::EC2::VPCPeeringConnection"
+        Properties:
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "Conexion_onpremise_Backup"
+            PeerVpcId: !Ref EC2VPC2
+            PeerOwnerId: !Ref AWS::AccountId
+            PeerRegion: !Ref AWS::Region
+            VpcId: !Ref EC2VPC
+
+    EC2RouteTable:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC2
+
+    EC2RouteTable2:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC2
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "tablaenrutamiento_backup"
+
+    EC2RouteTable3:
+        Type: "AWS::EC2::RouteTable"
+        Properties:
+            VpcId: !Ref EC2VPC
+            Tags: 
+              - 
+                Key: "Name"
+                Value: "route_on_premise"
+
+    EC2Route:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "179.52.167.139/32"
+            GatewayId: !Ref EC2InternetGateway2
+            RouteTableId: !Ref EC2RouteTable2
+
+    EC2Route2:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: !GetAtt EC2VPC.CidrBlock
+            VpcPeeringConnectionId: "pcx-0abebd4b2a61a8ad8"
+            RouteTableId: !Ref EC2RouteTable2
+
+    EC2Route3:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: !GetAtt EC2VPC2.CidrBlock
+            VpcPeeringConnectionId: "pcx-0abebd4b2a61a8ad8"
+            RouteTableId: !Ref EC2RouteTable3
+
+    EC2Route4:
+        Type: "AWS::EC2::Route"
+        Properties:
+            DestinationCidrBlock: "0.0.0.0/0"
+            GatewayId: !Ref EC2InternetGateway
+            RouteTableId: !Ref EC2RouteTable3
+
+    ApiGatewayAuthorizer:
+        Type: "AWS::ApiGateway::Authorizer"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            Name: "Proyecto4"
+            Type: "COGNITO_USER_POOLS"
+            ProviderARNs: 
+              - !GetAtt CognitoUserPool.Arn
+            AuthType: "cognito_user_pools"
+            IdentitySource: "method.request.header.auth"
+
+    ApiGatewayRestApi:
+        Type: "AWS::ApiGateway::RestApi"
+        Properties:
+            Name: "MetodoOnPremiseGet"
+            ApiKeySourceType: "HEADER"
+            EndpointConfiguration: 
+                Types: 
+                  - "REGIONAL"
+
+    ApiGatewayStage:
+        Type: "AWS::ApiGateway::Stage"
+        Properties:
+            StageName: "Poryecto4"
+            DeploymentId: !Ref ApiGatewayDeployment13
+            RestApiId: !Ref ApiGatewayRestApi
+            CacheClusterEnabled: false
+            CacheClusterSize: "0.5"
+            TracingEnabled: false
+
+    ApiGatewayDeployment:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment2:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment3:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment4:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment5:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment6:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment7:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment8:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment9:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment10:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment11:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment12:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment13:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment14:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment15:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment16:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment17:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment18:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayDeployment19:
+        Type: "AWS::ApiGateway::Deployment"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+
+    ApiGatewayMethod:
+        Type: "AWS::ApiGateway::Method"
+        Properties:
+            RestApiId: !Ref ApiGatewayRestApi
+            ResourceId: "5o7vnkwe09"
+            HttpMethod: "GET"
+            AuthorizationType: "COGNITO_USER_POOLS"
+            AuthorizerId: !Ref ApiGatewayAuthorizer
+            ApiKeyRequired: false
+            MethodResponses: 
+              - 
+                ResponseModels: 
+                    "application/json": "Empty"
+                ResponseParameters: 
+                    "method.response.header.Access-Control-Allow-Origin": false
+                StatusCode: "200"
+            Integration: 
+                CacheNamespace: "5o7vnkwe09"
+                ContentHandling: "CONVERT_TO_TEXT"
+                IntegrationHttpMethod: "POST"
+                IntegrationResponses: 
+                  - 
+                    ResponseParameters: 
+                        "method.response.header.Access-Control-Allow-Origin": "'*'"
+                    ResponseTemplates: {}
+                    StatusCode: "200"
+                PassthroughBehavior: "WHEN_NO_MATCH"
+                TimeoutInMillis: 29000
+                Type: "AWS"
+                Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaFunction3}/invocations"
+
+    IAMInstanceProfile:
+        Type: "AWS::IAM::InstanceProfile"
+        Properties:
+            Path: "/cloud9/"
+            InstanceProfileName: "AWSCloud9SSMInstanceProfile"
+            Roles: 
+              - !Sub "service-role/${IAMRole}"
+
+    IAMUser:
+        Type: "AWS::IAM::User"
+        Properties:
+            Path: "/"
+            UserName: "Pruebaformer2"
+            Tags: 
+              - 
+                Key: "AKIAQMHXWGD64SE57XAG"
+                Value: "PruebaFormer2"
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AdministratorAccess"
+              - "arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess"
+
+    IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: "AWSCloud9SSMAccessRole"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":[\"ec2.amazonaws.com\",\"cloud9.amazonaws.com\"]},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AWSCloud9SSMInstanceProfile"
+
+    IAMRole2:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: "Captone-role-qlew2kxh"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy7
+
+    IAMRole3:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: "ConexionProyecto4-role-rz9fykx7"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy5
+              - "arn:aws:iam::aws:policy/AmazonRDSDataFullAccess"
+
+    IAMRole4:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "ParaLambda"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AmazonRDSDataFullAccess"
+              - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+            Description: "Allows Lambda functions to call AWS services on your behalf."
+
+    IAMRole5:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: !Sub "${LambdaFunction2}-role-scvqmshz"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy2
+
+    IAMRole6:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: "Prueba-role-264z5wfs"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy3
+              - "arn:aws:iam::aws:policy/AmazonRDSDataFullAccess"
+              - "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+
+    IAMRole7:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: "rds-proxy-role-1697511196501"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"rds.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy4
+            Description: "Allows RDS Proxy access to database connection credentials"
+
+    IAMRole8:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: "Prueba2-role-2avh6dib"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy6
+
+    IAMRole9:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: !Sub "${LambdaFunction3}-role-8m0s1e6r"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy
+
+    IAMRole10:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "Para_cognito_apigatewaycall"
+            AssumeRolePolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Federated\":\"cognito-identity.amazonaws.com\"},\"Action\":\"sts:AssumeRoleWithWebIdentity\",\"Condition\":{\"StringEquals\":{\"cognito-identity.amazonaws.com:aud\":\"${CognitoUserPool}\"}}}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator"
+              - "arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess"
+            Description: ""
+
+    IAMRole11:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/service-role/"
+            RoleName: "prueba_cognito-role-61d0e3xl"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - !Ref IAMManagedPolicy8
+
+    IAMRole12:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: "rds-monitoring-role"
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"monitoring.rds.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+
+    IAMServiceLinkedRole:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "cloud9.amazonaws.com"
+            Description: "Service linked role for AWS Cloud9"
+
+    IAMServiceLinkedRole2:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "ops.apigateway.amazonaws.com"
+            Description: "The Service Linked Role is used by Amazon API Gateway."
+
+    IAMServiceLinkedRole3:
+        Type: "AWS::IAM::ServiceLinkedRole"
+        Properties:
+            AWSServiceName: "rds.amazonaws.com"
+            Description: "Allows Amazon RDS to manage AWS resources on your behalf"
+
+    IAMManagedPolicy:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "AWSLambdaBasicExecutionRole-4f2c15db-dfa3-4da3-9ae1-66730fe83739"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaFunction3}:*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy2:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "AWSLambdaBasicExecutionRole-7fc14e83-d0c4-47c7-9136-54665624ed5d"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaFunction2}:*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy3:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "AWSLambdaBasicExecutionRole-f0499fe9-8a6f-4c82-a986-9291c33e6a1a"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": "arn:aws:logs:us-east-2:${AWS::AccountId}:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:us-east-2:${AWS::AccountId}:log-group:/aws/lambda//aws/lambda/Prueba:*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy4:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "rds-proxy-policy-1697511196501"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "GetSecretValue",
+                            "Action": [
+                                "secretsmanager:GetSecretValue"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:secretsmanager:us-east-2:${AWS::AccountId}:secret:claveProyecto4-aRE91e"
+                            ]
+                        },
+                        {
+                            "Sid": "DecryptSecretValue",
+                            "Action": [
+                                "kms:Decrypt"
+                            ],
+                            "Effect": "Allow",
+                            "Resource": [
+                                "arn:aws:kms:us-east-2:${AWS::AccountId}:key/6e055367-bfe4-453f-8f1d-38073e612e68"
+                            ],
+                            "Condition": {
+                                "StringEquals": {
+                                    "kms:ViaService": "secretsmanager.us-east-2.amazonaws.com"
+                                }
+                            }
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy5:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "AWSLambdaBasicExecutionRole-b95c9da1-4b98-48c8-a081-57fad00d857e"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": "arn:aws:logs:us-east-2:${AWS::AccountId}:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:us-east-2:${AWS::AccountId}:log-group:/aws/lambda/ConexionProyecto4:*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy6:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "AWSLambdaBasicExecutionRole-9c25077d-998a-4605-aac3-dc7434a4a13d"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": "arn:aws:logs:us-east-2:${AWS::AccountId}:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:us-east-2:${AWS::AccountId}:log-group:/aws/lambda//aws/lambda/Prueba2:*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy7:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "AWSLambdaBasicExecutionRole-608566c5-5c97-4ca3-87ef-deb3be07c810"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": "arn:aws:logs:us-east-2:${AWS::AccountId}:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:us-east-2:${AWS::AccountId}:log-group:/aws/lambda//aws/lambda/Captone:*"
+                            ]
+                        }
+                    ]
+                }
+
+    IAMManagedPolicy8:
+        Type: "AWS::IAM::ManagedPolicy"
+        Properties:
+            ManagedPolicyName: "AWSLambdaBasicExecutionRole-761cb1ea-9971-4d92-b286-315989d1d36d"
+            Path: "/service-role/"
+            PolicyDocument: !Sub |
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "logs:CreateLogGroup",
+                            "Resource": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/prueba_cognito:*"
+                            ]
+                        }
+                    ]
+                }
+
+    CognitoUserPool:
+        Type: "AWS::Cognito::UserPool"
+        Properties:
+            UserPoolName: "Proyecto4"
+            Policies: 
+                PasswordPolicy: 
+                    MinimumLength: 8
+                    RequireUppercase: false
+                    RequireLowercase: false
+                    RequireNumbers: false
+                    RequireSymbols: false
+                    TemporaryPasswordValidityDays: 7
+            LambdaConfig: {}
+            Schema: 
+              - 
+                Name: "sub"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: false
+                Required: true
+                StringAttributeConstraints: 
+                    MinLength: "1"
+                    MaxLength: "2048"
+              - 
+                Name: "name"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "given_name"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "family_name"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "middle_name"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "nickname"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "preferred_username"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "profile"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "picture"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "website"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "email"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: true
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "email_verified"
+                AttributeDataType: "Boolean"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+              - 
+                Name: "gender"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "birthdate"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "10"
+                    MaxLength: "10"
+              - 
+                Name: "zoneinfo"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "locale"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "phone_number"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "phone_number_verified"
+                AttributeDataType: "Boolean"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+              - 
+                Name: "address"
+                AttributeDataType: "String"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                StringAttributeConstraints: 
+                    MinLength: "0"
+                    MaxLength: "2048"
+              - 
+                Name: "updated_at"
+                AttributeDataType: "Number"
+                DeveloperOnlyAttribute: false
+                Mutable: true
+                Required: false
+                NumberAttributeConstraints: 
+                    MinValue: "0"
+            AutoVerifiedAttributes: 
+              - "email"
+            AliasAttributes: 
+              - "preferred_username"
+            MfaConfiguration: "OFF"
+            EmailConfiguration: 
+                EmailSendingAccount: "COGNITO_DEFAULT"
+            AdminCreateUserConfig: 
+                AllowAdminCreateUserOnly: false
+            UserPoolTags: {}
+            AccountRecoverySetting: 
+                RecoveryMechanisms: 
+                  - 
+                    Priority: 1
+                    Name: "verified_email"
+            UsernameConfiguration: 
+                CaseSensitive: false
+            VerificationMessageTemplate: 
+                DefaultEmailOption: "CONFIRM_WITH_CODE"
+
+    CognitoUserPoolClient:
+        Type: "AWS::Cognito::UserPoolClient"
+        Properties:
+            UserPoolId: !Ref CognitoUserPool
+            ClientName: !Ref CognitoUserPoolDomain
+            RefreshTokenValidity: 60
+            ReadAttributes: 
+              - "address"
+              - "birthdate"
+              - "email"
+              - "email_verified"
+              - "family_name"
+              - "gender"
+              - "given_name"
+              - "locale"
+              - "middle_name"
+              - "name"
+              - "nickname"
+              - "phone_number"
+              - "phone_number_verified"
+              - "picture"
+              - "preferred_username"
+              - "profile"
+              - "updated_at"
+              - "website"
+              - "zoneinfo"
+            WriteAttributes: 
+              - "address"
+              - "birthdate"
+              - "email"
+              - "family_name"
+              - "gender"
+              - "given_name"
+              - "locale"
+              - "middle_name"
+              - "name"
+              - "nickname"
+              - "phone_number"
+              - "picture"
+              - "preferred_username"
+              - "profile"
+              - "updated_at"
+              - "website"
+              - "zoneinfo"
+            ExplicitAuthFlows: 
+              - "ALLOW_CUSTOM_AUTH"
+              - "ALLOW_REFRESH_TOKEN_AUTH"
+              - "ALLOW_USER_PASSWORD_AUTH"
+              - "ALLOW_USER_SRP_AUTH"
+            PreventUserExistenceErrors: "ENABLED"
+            SupportedIdentityProviders: 
+              - "COGNITO"
+            CallbackURLs: 
+              - !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${ApiGatewayStage}"
+              - !Sub "https://${CognitoUserPoolDomain}-interfaz.s3.amazonaws.com/prueba.html"
+            AllowedOAuthFlows: 
+              - "implicit"
+            AllowedOAuthScopes: 
+              - "aws.cognito.signin.user.admin"
+              - "email"
+              - "openid"
+              - "phone"
+              - "profile"
+            AllowedOAuthFlowsUserPoolClient: true
+            IdTokenValidity: 5
+            AccessTokenValidity: 5
+            TokenValidityUnits: 
+                AccessToken: "minutes"
+                IdToken: "minutes"
+                RefreshToken: "minutes"
+
+    CognitoUserPoolUser:
+        Type: "AWS::Cognito::UserPoolUser"
+        Properties:
+            Username: "jose"
+            UserPoolId: !Ref CognitoUserPool
+            UserAttributes: 
+              - 
+                Name: "sub"
+                Value: "ba9dfc93-4d3d-4a09-9fa7-74f610d817bc"
+              - 
+                Name: "email_verified"
+                Value: "true"
+              - 
+                Name: "email"
+                Value: "victorjguzman17@gmail.com"
+
+    CognitoUserPoolGroup:
+        Type: "AWS::Cognito::UserPoolGroup"
+        Properties:
+            GroupName: !Sub "grupo_${CognitoUserPoolDomain}"
+            UserPoolId: !Ref CognitoUserPool
+            Precedence: 1
+            RoleArn: !GetAtt IAMRole10.Arn
+
+    CognitoUserPoolUserToGroupAttachment:
+        Type: "AWS::Cognito::UserPoolUserToGroupAttachment"
+        Properties:
+            GroupName: !Sub "grupo_${CognitoUserPoolDomain}"
+            Username: "jose"
+            UserPoolId: !Ref CognitoUserPool
+
+    CognitoUserPoolDomain:
+        Type: "AWS::Cognito::UserPoolDomain"
+        Properties:
+            Domain: "proyecto4"
+            UserPoolId: !Ref CognitoUserPool
+
+    LambdaFunction:
+        Type: "AWS::Lambda::Function"
+        Properties:
+            Description: ""
+            FunctionName: "CrearTablaBackup"
+            Handler: "state_handler.lambda_handler"
+            Architectures: 
+              - "x86_64"
+            Code: 
+                S3Bucket: "prod-iad-c1-djusa-tasks"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/CrearTablaBackup-b14418c6-6683-42c5-bdb5-cc8dac8f3b60"
+                S3ObjectVersion: "Jb16vOZfdD2sTXNgzVFQYacZ11_Xqjam"
+            MemorySize: 128
+            Role: !GetAtt IAMRole4.Arn
+            Runtime: "python3.8"
+            Timeout: 3
+            TracingConfig: 
+                Mode: "PassThrough"
+            VpcConfig: 
+                SubnetIds: 
+                  - !Ref EC2Subnet2
+                  - !Ref EC2Subnet4
+                  - !Ref EC2Subnet6
+                SecurityGroupIds: 
+                  - "sg-0c95f3ab35428794e"
+            Layers: 
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:llamadaPostgres:1"
+            EphemeralStorage: 
+                Size: 512
+
+    LambdaFunction2:
+        Type: "AWS::Lambda::Function"
+        Properties:
+            Description: ""
+            FunctionName: "Insertardatos"
+            Handler: "state_handler.lambda_handler"
+            Architectures: 
+              - "x86_64"
+            Code: 
+                S3Bucket: "prod-iad-c1-djusa-tasks"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/Insertardatos-b336e6af-936a-439a-afb4-a4791f6adfc6"
+                S3ObjectVersion: "fOKK3u4C5KXzBv1iEhqrbAQdaKkLP5ZE"
+            MemorySize: 128
+            Role: !GetAtt IAMRole4.Arn
+            Runtime: "python3.8"
+            Timeout: 3
+            TracingConfig: 
+                Mode: "PassThrough"
+            VpcConfig: 
+                SubnetIds: 
+                  - !Ref EC2Subnet2
+                  - !Ref EC2Subnet4
+                  - !Ref EC2Subnet6
+                SecurityGroupIds: 
+                  - "sg-0c95f3ab35428794e"
+            Layers: 
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:llamadaPostgres:1"
+            EphemeralStorage: 
+                Size: 512
+
+    LambdaFunction3:
+        Type: "AWS::Lambda::Function"
+        Properties:
+            Description: !Sub "acceso${CognitoUserPoolDomain}"
+            FunctionName: "pruebapostgres"
+            Handler: "state_handler.lambda_handler"
+            Architectures: 
+              - "x86_64"
+            Code: 
+                S3Bucket: "prod-iad-c1-djusa-tasks"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/pruebapostgres-8d8a4566-7ef1-44f6-b74b-f536e2e5b11e"
+                S3ObjectVersion: "QMWMvGUwp61vbDjttzfKHQD56x_cs_Tk"
+            MemorySize: 128
+            Role: !GetAtt IAMRole4.Arn
+            Runtime: "python3.8"
+            Timeout: 3
+            TracingConfig: 
+                Mode: "PassThrough"
+            VpcConfig: 
+                SubnetIds: 
+                  - !Ref EC2Subnet2
+                  - !Ref EC2Subnet4
+                  - !Ref EC2Subnet6
+                SecurityGroupIds: 
+                  - "sg-0c95f3ab35428794e"
+            Layers: 
+              - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:llamadaPostgres:1"
+            EphemeralStorage: 
+                Size: 512
+
+    LambdaPermission:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction2.Arn
+            Principal: "apigateway.amazonaws.com"
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:114oeeymz9/*/OPTIONS/ApiOnpremiseGET"
+
+    LambdaPermission2:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction3.Arn
+            Principal: "apigateway.amazonaws.com"
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:0rehmgiy9j/*/GET/"
+
+    LambdaPermission3:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction3.Arn
+            Principal: "apigateway.amazonaws.com"
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:z491rl9rgh/*/GET/"
+
+    LambdaPermission4:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction3.Arn
+            Principal: "apigateway.amazonaws.com"
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:114oeeymz9/*/OPTIONS/ApiOnpremiseGET"
+
+    LambdaPermission5:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction3.Arn
+            Principal: "apigateway.amazonaws.com"
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/GET/"
+
+    LambdaPermission6:
+        Type: "AWS::Lambda::Permission"
+        Properties:
+            Action: "lambda:InvokeFunction"
+            FunctionName: !GetAtt LambdaFunction3.Arn
+            Principal: "apigateway.amazonaws.com"
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/authorizers/yl537k"
+
+    LambdaLayerVersion:
+        Type: "AWS::Lambda::LayerVersion"
+        Properties:
+            Description: ""
+            CompatibleRuntimes: 
+              - "python3.8"
+              - "python3.9"
+            LayerName: "llamadaPostgres"
+            Content: 
+                S3Bucket: "prod-iad-c1-djusa-layers"
+                S3Key: !Sub "/snapshots/${AWS::AccountId}/llamadaPostgres-b4edd1d8-8780-4c4e-a684-7bce2fd40973"
+
